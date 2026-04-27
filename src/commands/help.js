@@ -23,7 +23,6 @@ module.exports = {
             '`/ping` — Check bot latency',
             '`/serverinfo` — Server details',
             '`/userinfo [user]` — User profile',
-            '`/config` — Bot configuration menu (admin only)',
           ].join('\n'),
         },
         {
