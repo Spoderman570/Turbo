@@ -19,23 +19,19 @@ for (const file of commandFiles) {
 
 const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
 
+// OFFICIAL SERVER ONLY
+const guildId = "1494153147550011442";
+
 (async () => {
   try {
-    console.log(`Deploying ${commands.length} slash commands...`);
+    console.log(`Deploying ${commands.length} commands to official server...`);
 
-    if (process.env.GUILD_ID) {
-      await rest.put(
-        Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
-        { body: commands }
-      );
-      console.log(`✅ Deployed to guild ${process.env.GUILD_ID}`);
-    } else {
-      await rest.put(
-        Routes.applicationCommands(process.env.CLIENT_ID),
-        { body: commands }
-      );
-      console.log('✅ Deployed globally');
-    }
+    await rest.put(
+      Routes.applicationGuildCommands(process.env.CLIENT_ID, guildId),
+      { body: commands }
+    );
+
+    console.log(`✅ Commands deployed to official server (${guildId})`);
   } catch (err) {
     console.error(err);
   }
