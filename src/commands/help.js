@@ -24,6 +24,7 @@ module.exports = {
             '`/serverinfo` — Server details',
             '`/userinfo [user]` — User profile',
             '`/config` — Bot configuration menu (admin only)',
+            '`/giveaway` - Giveaways',
           ].join('\n'),
         },
         {
