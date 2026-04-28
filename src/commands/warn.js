@@ -2,8 +2,7 @@
 //   🚀 Turbo Customs Bot
 //   Made by Cloudy | Cloudy_9075 on Discord
 // ============================================
-
-const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 
 // In-memory warn store (replace with a DB like sqlite/mongoose for persistence)
 const warns = new Map();
@@ -28,30 +27,47 @@ module.exports = {
     warns.get(target.id).push({ reason, mod: interaction.user.tag, time: Date.now() });
     const count = warns.get(target.id).length;
 
-    const embed = new EmbedBuilder()
-      .setColor(0xf9ca24)
-      .setTitle('Member Warned')
-      .addFields(
-        { name: 'User', value: `${target}`, inline: true },
-        { name: 'Moderator', value: `${interaction.user}`, inline: true },
-        { name: 'Total Warns', value: `${count}`, inline: true },
-        { name: 'Reason', value: reason },
-      )
-      .setTimestamp();
+    // ── Reply ──────────────────────────────────────────────────────────────────
+    await interaction.reply({
+      flags: 32768,
+      components: [
+        {
+          type: 17,
+          components: [
+            {
+              type: 10,
+              content: [
+                `# Member Warned`,
+                ``,
+                `**User:** ${target}`,
+                `**Moderator:** ${interaction.user}`,
+                `**Total Warns:** ${count}`,
+                `**Reason:** ${reason}`,
+              ].join('\n'),
+            },
+          ],
+        },
+      ],
+    });
 
-    await interaction.reply({ embeds: [embed] });
-
-    // DM the user
+    // ── DM the user ────────────────────────────────────────────────────────────
     await target.send({
-      embeds: [
-        new EmbedBuilder()
-          .setColor(0xf9ca24)
-          .setTitle(`You were warned in ${interaction.guild.name}`)
-          .addFields(
-            { name: 'Reason', value: reason },
-            { name: 'Total Warnings', value: `${count}` },
-          )
-          .setTimestamp(),
+      flags: 32768,
+      components: [
+        {
+          type: 17,
+          components: [
+            {
+              type: 10,
+              content: [
+                `# You were warned in ${interaction.guild.name}`,
+                ``,
+                `**Reason:** ${reason}`,
+                `**Total Warnings:** ${count}`,
+              ].join('\n'),
+            },
+          ],
+        },
       ],
     }).catch(() => null);
   },
