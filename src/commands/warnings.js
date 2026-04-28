@@ -2,8 +2,7 @@
 //   🚀 Turbo Customs Bot
 //   Made by Cloudy | Cloudy_9075 on Discord
 // ============================================
-
-const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 const warnCommand = require('./warn');
 
 module.exports = {
@@ -19,24 +18,47 @@ module.exports = {
     const target = interaction.options.getUser('user');
     const userWarns = warnCommand.warns.get(target.id) || [];
 
-    const embed = new EmbedBuilder()
-      .setColor(0x00b8fd)
-      .setTitle(`Warnings — ${target.tag}`)
-      .setThumbnail(target.displayAvatarURL());
+    const warningLines = userWarns.length === 0
+      ? `No warnings on record.`
+      : userWarns.map((w, i) =>
+          `**Warning #${i + 1}**\n**Reason:** ${w.reason}\n**Mod:** ${w.mod}\n**When:** <t:${Math.floor(w.time / 1000)}:R>`
+        ).join('\n\n');
 
-    if (userWarns.length === 0) {
-      embed.setDescription('No warnings on record.');
-    } else {
-      userWarns.forEach((w, i) => {
-        embed.addFields({
-          name: `Warning #${i + 1}`,
-          value: `**Reason:** ${w.reason}\n**Mod:** ${w.mod}\n**When:** <t:${Math.floor(w.time / 1000)}:R>`,
-        });
-      });
-    }
-
-    embed.setFooter({ text: `${userWarns.length} total warning(s)` }).setTimestamp();
-
-    await interaction.reply({ embeds: [embed] });
+    await interaction.reply({
+      flags: 32768,
+      components: [
+        {
+          type: 17,
+          components: [
+            {
+              type: 10,
+              content: `# Warnings — ${target.tag}`,
+            },
+            ...(target.displayAvatarURL()
+              ? [
+                  {
+                    type: 11,
+                    media: { url: target.displayAvatarURL({ size: 256 }) },
+                  },
+                ]
+              : []),
+            {
+              type: 14,
+            },
+            {
+              type: 10,
+              content: warningLines,
+            },
+            {
+              type: 14,
+            },
+            {
+              type: 10,
+              content: `-# ${userWarns.length} total warning(s)`,
+            },
+          ],
+        },
+      ],
+    });
   },
 };
