@@ -54,7 +54,7 @@ module.exports = {
               {
                 type: 10,
                 content: [
-                  `# ${prize} Giveaway`,
+                  `# 🎉 ${prize} Giveaway`,
                   ``,
                   `**Host:** ${interaction.user}`,
                   `**Winners:** ${winnerCount}`,
@@ -69,7 +69,7 @@ module.exports = {
                     type: 2,
                     style: ButtonStyle.Secondary,
                     label: 'Enter Giveaway',
-                    emoji: { name: '🌐' },
+                    emoji: { name: 'Globe', id: '1497047956866465893' },
                     custom_id: 'giveaway_enter',
                   },
                   {
@@ -101,7 +101,7 @@ module.exports = {
               {
                 type: 10,
                 content: [
-                  `# ${prize} Giveaway — Ended`,
+                  `# 🎊 ${prize} Giveaway — Ended`,
                   ``,
                   `**Host:** ${interaction.user}`,
                   `**Winners:** ${winnerMentions}`,
