@@ -19,27 +19,27 @@ module.exports = {
       flags: 32768,
       components: [
         {
-          type: 17, // Container
+          type: 17, 
           components: [
-            // Header with server icon + name
+        
             {
-              type: 10, // Text Display
+              type: 10, 
             content: `# ${guild.name}`,
             },
-            // Thumbnail (server icon)
+
             ...(guild.iconURL()
               ? [
                   {
-                    type: 11, // Thumbnail
+                    type: 11, 
                     media: { url: guild.iconURL({ size: 256 }) },
                   },
                 ]
               : []),
-            // Divider
+    
             {
-              type: 14, // Separator
+              type: 14, 
             },
-            // Fields
+        
             {
               type: 10,
               content: [
