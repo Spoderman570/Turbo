@@ -13,5 +13,3 @@ GUILD_ID=
 
 PREFIX=!
 
-## Bot status message
-STATUS=🚀 Turbo Customs | /help
