@@ -2,8 +2,7 @@
 //   🚀 Turbo Customs Bot
 //   Made by Cloudy | Cloudy_9075 on Discord
 // ============================================
-
-const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 const warnCommand = require('./warn');
 
 module.exports = {
@@ -22,10 +21,11 @@ module.exports = {
     ),
 
   async execute(interaction) {
-    const target = interaction.options.getUser('user');
+    const target    = interaction.options.getUser('user');
     const warningId = interaction.options.getInteger('warning_id');
-    const reason = interaction.options.getString('reason') || 'No reason provided';
-    const warns = warnCommand.warns;
+    const reason    = interaction.options.getString('reason') || 'No reason provided';
+
+    const warns     = warnCommand.warns;
     const userWarns = warns.get(target.id) || [];
 
     if (userWarns.length === 0) {
@@ -37,38 +37,54 @@ module.exports = {
     }
 
     const removed = userWarns.splice(warningId - 1, 1)[0];
-    if (userWarns.length === 0) {
-      warns.delete(target.id);
-    }
+    if (userWarns.length === 0) warns.delete(target.id);
 
-    const embed = new EmbedBuilder()
-      .setColor(0x9b59b6)
-      .setTitle('Warning Removed')
-      .addFields(
-        { name: 'User', value: `${target.tag}`, inline: true },
-        { name: 'Moderator', value: `${interaction.user.tag}`, inline: true },
-        { name: 'Removed Warning ID', value: `${warningId}`, inline: true },
-        { name: 'Removed Warning Reason', value: removed.reason },
-        { name: 'Clear Reason', value: reason },
-        { name: 'Remaining Warnings', value: `${userWarns.length}`, inline: true },
-      )
-      .setTimestamp();
+    // ── Reply ──────────────────────────────────────────────────────────────────
+    await interaction.reply({
+      flags: 32768,
+      components: [
+        {
+          type: 17,
+          components: [
+            {
+              type: 10,
+              content: [
+                `# Warning Removed`,
+                ``,
+                `**User:** ${target.tag}`,
+                `**Moderator:** ${interaction.user.tag}`,
+                `**Removed Warning #:** ${warningId}`,
+                `**Removed Warning Reason:** ${removed.reason}`,
+                `**Clear Reason:** ${reason}`,
+                `**Remaining Warnings:** ${userWarns.length}`,
+              ].join('\n'),
+            },
+          ],
+        },
+      ],
+    });
 
-    await interaction.reply({ embeds: [embed] });
-
+    // ── DM the user ────────────────────────────────────────────────────────────
     await target.send({
-      embeds: [
-        new EmbedBuilder()
-          .setColor(0x9b59b6)
-          .setTitle(`A warning was removed in ${interaction.guild.name}`)
-          .addFields(
-            { name: 'Removed Warning ID', value: `${warningId}`, inline: true },
-            { name: 'Removed Warning Reason', value: removed.reason },
-            { name: 'Cleared By', value: `${interaction.user.tag}` },
-            { name: 'Reason for Removal', value: reason },
-            { name: 'Remaining Warnings', value: `${userWarns.length}`, inline: true },
-          )
-          .setTimestamp(),
+      flags: 32768,
+      components: [
+        {
+          type: 17,
+          components: [
+            {
+              type: 10,
+              content: [
+                `# A warning was removed in ${interaction.guild.name}`,
+                ``,
+                `**Removed Warning #:** ${warningId}`,
+                `**Removed Warning Reason:** ${removed.reason}`,
+                `**Cleared By:** ${interaction.user.tag}`,
+                `**Reason for Removal:** ${reason}`,
+                `**Remaining Warnings:** ${userWarns.length}`,
+              ].join('\n'),
+            },
+          ],
+        },
       ],
     }).catch(() => null);
   },
