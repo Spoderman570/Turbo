@@ -43,9 +43,12 @@ module.exports = {
           value: [
             '`/kick <user> [reason]` — Kick a member',
             '`/ban <user> [reason]` — Ban a member',
+            '`/unban <user> [reason]` — Unban a member',
             '`/warn <user> <reason>` — Warn a member',
             '`/warnings <user>` — View warnings',
-            '`/timeout <user> <minutes>` — Timeout a member',
+            '`/clearwarnings <user> <warning-id> [reason]` — Remove a warning and DM the user',
+            '`/timeout <user> <minutes> [reason]` — Timeout a member',
+            '`/untimeout <user> [reason]` — Remove timeout from a member',
             '`/slowmode <seconds>` — Set channel slowmode',
             '`/purge <amount>` — Bulk delete messages',
           ].join('\n'),
