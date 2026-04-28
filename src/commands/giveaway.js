@@ -54,7 +54,7 @@ module.exports = {
               {
                 type: 10,
                 content: [
-                  `# 🎉 ${prize} Giveaway`,
+                  `# ${prize} Giveaway`,
                   ``,
                   `**Host:** ${interaction.user}`,
                   `**Winners:** ${winnerCount}`,
@@ -101,7 +101,7 @@ module.exports = {
               {
                 type: 10,
                 content: [
-                  `# 🎊 ${prize} Giveaway — Ended`,
+                  `# ${prize} Giveaway — Ended`,
                   ``,
                   `**Host:** ${interaction.user}`,
                   `**Winners:** ${winnerMentions}`,
