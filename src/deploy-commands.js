@@ -17,21 +17,35 @@ for (const file of commandFiles) {
   if (command.data) commands.push(command.data.toJSON());
 }
 
-const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
+const token = process.env.DISCORD_TOKEN;
+const clientId = process.env.CLIENT_ID;
+const guildId = process.env.GUILD_ID || process.env.GUILD || null;
 
-// OFFICIAL SERVER ONLY
-const guildId = "1494153147550011442";
+if (!token || !clientId) {
+  console.error('Missing DISCORD_TOKEN or CLIENT_ID in environment. Create a .env file with these values.');
+  process.exit(1);
+}
+
+const rest = new REST({ version: '10' }).setToken(token);
 
 (async () => {
   try {
-    console.log(`Deploying ${commands.length} commands to official server...`);
+    const target = guildId ? `guild ${guildId}` : 'global application commands';
+    console.log(`Deploying ${commands.length} commands to ${target}...`);
 
-    await rest.put(
-      Routes.applicationGuildCommands(process.env.CLIENT_ID, guildId),
-      { body: commands }
-    );
-
-    console.log(`✅ Commands deployed to official server (${guildId})`);
+    if (guildId) {
+      await rest.put(
+        Routes.applicationGuildCommands(clientId, guildId),
+        { body: commands }
+      );
+      console.log(`✅ Commands deployed to guild ${guildId}`);
+    } else {
+      await rest.put(
+        Routes.applicationCommands(clientId),
+        { body: commands }
+      );
+      console.log('✅ Commands deployed globally');
+    }
   } catch (err) {
     console.error(err);
   }
