@@ -32,16 +32,12 @@ module.exports = {
           components: [
             {
               type: 10,
-              content: `# Warnings — ${target.tag}`,
+              content: `# Warnings — ${target.username}`,
             },
-            ...(target.displayAvatarURL()
-              ? [
-                  {
-                    type: 11,
-                    media: { url: target.displayAvatarURL({ size: 256 }) },
-                  },
-                ]
-              : []),
+            {
+              type: 11,
+              media: { url: target.displayAvatarURL({ size: 256 }) },
+            },
             {
               type: 14,
             },
