@@ -2,8 +2,9 @@
 //   🚀 Turbo Customs Bot
 //   Made by Cloudy | Cloudy_9075 on Discord
 // ============================================
+const { SlashCommandBuilder } = require('discord.js');
 
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const REVIEWS_CHANNEL_ID = '1497831959525855362';
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -30,28 +31,45 @@ module.exports = {
 
   async execute(interaction) {
     const designer = interaction.options.getUser('designer');
-    const rating = interaction.options.getInteger('rating');
+    const rating   = interaction.options.getInteger('rating');
     const feedback = interaction.options.getString('feedback');
-    const stars = '⭐'.repeat(rating) + '✩'.repeat(5 - rating);
+    const stars    = '⭐'.repeat(rating) + '✩'.repeat(5 - rating);
 
-    const embed = new EmbedBuilder()
-      .setColor(rating >= 4 ? 0x2ed573 : rating === 3 ? 0xf9ca24 : 0xff4757)
-      .setAuthor({ name: '🚀 Turbo Customs — New Review' })
-      .addFields(
-        { name: 'Designer', value: `${designer}`, inline: true },
-        { name: 'Client', value: `${interaction.user}`, inline: true },
-        { name: 'Rating', value: stars, inline: true },
-        { name: 'Review', value: feedback },
-      )
-      .setFooter({ text: `Reviewed by ${interaction.user.tag}` })
-      .setTimestamp();
+    const payload = {
+      flags: 32768,
+      components: [
+        {
+          type: 17,
+          components: [
+            {
+              type: 10,
+              content: [
+                `# New Review`,
+                ``,
+                `**Designer:** ${designer}`,
+                `**Client:** ${interaction.user}`,
+                `**Rating:** ${stars}`,
+                `**Review:** ${feedback}`,
+              ].join('\n'),
+            },
+            {
+              type: 14,
+            },
+            {
+              type: 10,
+              content: `-# Reviewed by ${interaction.user.tag}`,
+            },
+          ],
+        },
+      ],
+    };
 
-    await interaction.reply({ embeds: [embed] });
+    await interaction.reply(payload);
 
-    // Also post to a #reviews channel if it exists
-    const reviewsChannel = interaction.guild.channels.cache.find(c => c.name === 'reviews');
-    if (reviewsChannel && reviewsChannel.id !== interaction.channelId) {
-      await reviewsChannel.send({ embeds: [embed] });
+    // Post to reviews channel if not already there
+    if (interaction.channelId !== REVIEWS_CHANNEL_ID) {
+      const reviewsChannel = interaction.guild.channels.cache.get(REVIEWS_CHANNEL_ID);
+      if (reviewsChannel) await reviewsChannel.send(payload).catch(() => null);
     }
   },
 };
