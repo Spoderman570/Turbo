@@ -1,11 +1,9 @@
-// commands/giveaway.js
+// commands/giveaway.js — Components V2
 const {
   SlashCommandBuilder,
   PermissionFlagsBits,
-  ButtonBuilder,
-  ButtonStyle,
-  ActionRowBuilder,
   ComponentType,
+  ButtonStyle,
 } = require('discord.js');
 
 module.exports = {
@@ -42,52 +40,34 @@ module.exports = {
     const durationMs = durationMinutes * 60 * 1000;
     const endTimestamp = Math.floor((Date.now() + durationMs) / 1000);
 
-    // Track participants in memory (keyed by message id after send)
     const participants = new Set();
 
-    // ── Helper: format duration label ─────────────────────────────────────────
-    function formatDuration(ms) {
-      const totalSeconds = Math.floor(ms / 1000);
-      const days    = Math.floor(totalSeconds / 86400);
-      const hours   = Math.floor((totalSeconds % 86400) / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const parts = [];
-      if (days)    parts.push(`${days}d`);
-      if (hours)   parts.push(`${hours}h`);
-      if (minutes) parts.push(`${minutes}m`);
-      return parts.join(' ') || '< 1m';
-    }
+    // ── Payload builders ───────────────────────────────────────────────────────
 
-    // ── Build active giveaway embed ────────────────────────────────────────────
-    function buildActiveEmbed(participantCount = 0) {
+    function buildPayload(participantCount = 0) {
       return {
-        flags: 32768, // IS_COMPONENTS_V2
+        flags: 32768,
         components: [
           {
-            type: 17, // Container
-            accent_color: 0x5865f2,
+            type: 17,
             components: [
               {
-                type: 10, // Text Display
+                type: 10,
                 content: [
-                  `# 🎉 Giveaway`,
+                  `# 🎉 ${prize} Giveaway`,
                   ``,
-                  `**Prize:** ${prize}`,
                   `**Host:** ${interaction.user}`,
                   `**Winners:** ${winnerCount}`,
-                  `**Duration:** ${formatDuration(durationMs)}`,
-                  ``,
-                  `> Ends <t:${endTimestamp}:R> — <t:${endTimestamp}:f>`,
-                  ``,
-                  `Press **Enter Giveaway** to join!`,
+                  `**Participants:** ${participantCount}`,
+                  `**Ends:** <t:${endTimestamp}:R>`,
                 ].join('\n'),
               },
               {
-                type: 1, // Action Row
+                type: 1,
                 components: [
                   {
                     type: 2,
-                    style: ButtonStyle.Primary,
+                    style: ButtonStyle.Secondary,
                     label: 'Enter Giveaway',
                     emoji: { name: '🌐' },
                     custom_id: 'giveaway_enter',
@@ -96,7 +76,6 @@ module.exports = {
                     type: 2,
                     style: ButtonStyle.Secondary,
                     label: `${participantCount}`,
-                    emoji: { name: '👥' },
                     custom_id: 'giveaway_count',
                     disabled: true,
                   },
@@ -108,31 +87,26 @@ module.exports = {
       };
     }
 
-    // ── Build ended embed ──────────────────────────────────────────────────────
-    function buildEndedEmbed(winners) {
+    function buildEndedPayload(winners) {
       const winnerMentions = winners.length
         ? winners.map(u => `${u}`).join(', ')
-        : '*No valid entries*';
+        : 'No valid entries';
 
       return {
         flags: 32768,
         components: [
           {
             type: 17,
-            accent_color: 0x2ecc71,
             components: [
               {
                 type: 10,
                 content: [
-                  `# 🎊 Giveaway Ended`,
+                  `# 🎊 ${prize} Giveaway — Ended`,
                   ``,
-                  `**Prize:** ${prize}`,
                   `**Host:** ${interaction.user}`,
-                  `**Entries:** ${participants.size}`,
-                  ``,
-                  `**Winner${winners.length !== 1 ? 's' : ''}:** ${winnerMentions}`,
-                  ``,
-                  `> Ended <t:${endTimestamp}:f>`,
+                  `**Winners:** ${winnerMentions}`,
+                  `**Total Entries:** ${participants.size}`,
+                  `**Ended:** <t:${endTimestamp}:f>`,
                 ].join('\n'),
               },
               {
@@ -142,16 +116,14 @@ module.exports = {
                     type: 2,
                     style: ButtonStyle.Secondary,
                     label: 'Giveaway Ended',
-                    emoji: { name: '🏁' },
-                    custom_id: 'giveaway_ended',
+                    custom_id: 'giveaway_enter',
                     disabled: true,
                   },
                   {
                     type: 2,
                     style: ButtonStyle.Secondary,
                     label: `${participants.size}`,
-                    emoji: { name: '👥' },
-                    custom_id: 'giveaway_count_final',
+                    custom_id: 'giveaway_count',
                     disabled: true,
                   },
                 ],
@@ -162,13 +134,15 @@ module.exports = {
       };
     }
 
-    // ── Send initial message ───────────────────────────────────────────────────
+    // ── Send message ───────────────────────────────────────────────────────────
+
     const message = await interaction.reply({
-      ...buildActiveEmbed(0),
+      ...buildPayload(0),
       fetchReply: true,
     });
 
-    // ── Collect button interactions ────────────────────────────────────────────
+    // ── Collect button clicks ──────────────────────────────────────────────────
+
     const collector = message.createMessageComponentCollector({
       componentType: ComponentType.Button,
       filter: i => i.customId === 'giveaway_enter',
@@ -177,48 +151,38 @@ module.exports = {
 
     collector.on('collect', async i => {
       if (participants.has(i.user.id)) {
-        // Already entered — allow them to leave
         participants.delete(i.user.id);
-        await i.reply({
-          content: `You've **left** the giveaway for **${prize}**.`,
-          ephemeral: true,
-        });
+        await i.reply({ content: `❌ You left the **${prize}** giveaway.`, ephemeral: true });
       } else {
         participants.add(i.user.id);
-        await i.reply({
-          content: `🌐 You've **entered** the giveaway for **${prize}**! Good luck!`,
-          ephemeral: true,
-        });
+        await i.reply({ content: `🌐 You entered the **${prize}** giveaway! Good luck!`, ephemeral: true });
       }
 
-      // Update participant count on the message
-      await message.edit(buildActiveEmbed(participants.size)).catch(() => null);
+      await message.edit(buildPayload(participants.size)).catch(() => null);
     });
 
     // ── End giveaway ───────────────────────────────────────────────────────────
-    collector.on('end', async () => {
-      const validEntries = [...participants];
 
-      if (!validEntries.length) {
-        await message.edit(buildEndedEmbed([])).catch(() => null);
-        await interaction.followUp('😔 No one entered the giveaway. No winners this time!');
+    collector.on('end', async () => {
+      const entries = [...participants];
+
+      if (!entries.length) {
+        await message.edit(buildEndedPayload([])).catch(() => null);
+        await interaction.followUp('😔 No one entered — no winners this time!');
         return;
       }
 
-      // Pick random winner(s)
-      const shuffled = validEntries.sort(() => Math.random() - 0.5);
+      const shuffled = entries.sort(() => Math.random() - 0.5);
       const winnerIds = shuffled.slice(0, Math.min(winnerCount, shuffled.length));
       const winnerUsers = await Promise.all(
         winnerIds.map(id => interaction.client.users.fetch(id).catch(() => null))
       );
       const validWinners = winnerUsers.filter(Boolean);
 
-      await message.edit(buildEndedEmbed(validWinners)).catch(() => null);
+      await message.edit(buildEndedPayload(validWinners)).catch(() => null);
 
-      const winnerMentions = validWinners.map(u => `${u}`).join(', ');
-      await interaction.followUp(
-        `🎉 Congratulations ${winnerMentions}! You won **${prize}**!`
-      );
+      const mentions = validWinners.map(u => `${u}`).join(', ');
+      await interaction.followUp(`🎉 Congratulations ${mentions}! You won **${prize}**!`);
     });
   },
 };
