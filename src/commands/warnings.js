@@ -35,10 +35,6 @@ module.exports = {
               content: `# Warnings — ${target.username}`,
             },
             {
-              type: 11,
-              media: { url: target.displayAvatarURL({ size: 256 }) },
-            },
-            {
               type: 14,
             },
             {
