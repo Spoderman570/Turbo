@@ -32,6 +32,9 @@ module.exports = {
       return;
     }
 
+    console.log(`Found ${client.commands.size} commands in collection, deploying ${commands.length} valid commands`);
+    console.log('Commands to deploy:', commands.map(c => c.name).join(', '));
+
     const rest = new REST({ version: '10' }).setToken(token);
     const guildId = process.env.GUILD_ID;
     const route = guildId

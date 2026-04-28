@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "deploy": "node src/deploy-commands.js"
+    "deploy": "node src/deploy-commands.js",
+    "clear": "node src/clear-commands.js"
   },
   "dependencies": {
     "discord.js": "^14.14.1",

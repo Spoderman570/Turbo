@@ -24,9 +24,15 @@ const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(f => f.endsWith('.js'));
 
 for (const file of commandFiles) {
-  const command = require(path.join(commandsPath, file));
-  if (command.data && command.execute) {
-    client.commands.set(command.data.name, command);
+  try {
+    const command = require(path.join(commandsPath, file));
+    if (command.data && command.execute) {
+      client.commands.set(command.data.name, command);
+    } else {
+      console.log(`⚠️  Command ${file} missing data or execute`);
+    }
+  } catch (error) {
+    console.log(`❌ Failed to load command ${file}:`, error.message);
   }
 }
 
