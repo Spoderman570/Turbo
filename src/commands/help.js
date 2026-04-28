@@ -23,19 +23,19 @@ module.exports = {
             '`/ping` — Check bot latency',
             '`/serverinfo` — Server details',
             '`/userinfo [user]` — User profile',
+<<<<<<< HEAD
             '`/config` — Bot configuration menu (admin only)',
             '`/giveaway` - Giveaways',
+=======
+>>>>>>> refs/remotes/origin/main
           ].join('\n'),
         },
         {
           name: 'Design',
           value: [
-            '`/order` — Submit a design order',
-            '`/pricing` — View service pricing',
             '`/robuxtax <amount>` — Calculate Robux after 30% tax',
             '`/quote` — Random design quote',
             '`/review <designer> <rating> <feedback>` — Leave a review',
-            '`/claim <order_id> [eta]` — Claim an open order',
           ].join('\n'),
         },
         {

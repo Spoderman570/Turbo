@@ -13,6 +13,7 @@ GUILD_ID= # optional: use this to deploy commands to a specific server for testi
 
 PREFIX=!
 
+<<<<<<< HEAD
 ## Bot status message
 STATUS=🚀 Turbo Customs | /help
 
@@ -24,3 +25,5 @@ npm run deploy
 ```
 
 If `GUILD_ID` is set, commands will be deployed to that guild only. If it is omitted, commands are deployed globally.
+=======
+>>>>>>> refs/remotes/origin/main

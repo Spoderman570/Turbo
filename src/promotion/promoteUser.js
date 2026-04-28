@@ -21,10 +21,14 @@ module.exports = async function promoteUser(interaction) {
         });
     }
 
+    // Category role (team top role)
     const categoryRole = guild.roles.cache.get(team.categoryRole);
-    const rankRoles = team.ranks.map(r => guild.roles.cache.find(role => role.name === r));
 
-    let currentRankIndex = rankRoles.findIndex(role => user.roles.cache.has(role?.id));
+    // FIXED: Match ranks by ID, not name
+    const rankRoles = team.ranks.map(id => guild.roles.cache.get(id));
+
+    // Find user's current rank index
+    let currentRankIndex = rankRoles.findIndex(role => role && user.roles.cache.has(role.id));
 
     // Promote to next rank
     if (currentRankIndex + 1 < rankRoles.length) {
@@ -34,13 +38,19 @@ module.exports = async function promoteUser(interaction) {
             return interaction.reply({ content: "Next rank role not found.", ephemeral: true });
         }
 
-        if (currentRankIndex >= 0) user.roles.remove(rankRoles[currentRankIndex]);
-        user.roles.add(nextRank);
+        // Remove old rank
+        if (currentRankIndex >= 0) {
+            const oldRank = rankRoles[currentRankIndex];
+            if (oldRank) user.roles.remove(oldRank);
+        }
+
+        // Add new rank
+        await user.roles.add(nextRank);
 
     } else {
         // Promote into category role
         if (!user.roles.cache.has(categoryRole.id)) {
-            user.roles.add(categoryRole);
+            await user.roles.add(categoryRole);
         } else {
             return interaction.reply({
                 content: "User is already at the highest rank in this team.",
