@@ -134,12 +134,10 @@ module.exports = {
       };
     }
 
-    // ── Send message ───────────────────────────────────────────────────────────
+    // ── Send message (defer ephemerally so "used /giveaway" is hidden) ──────────
 
-    const message = await interaction.reply({
-      ...buildPayload(0),
-      fetchReply: true,
-    });
+    await interaction.deferReply({ ephemeral: true });
+    const message = await interaction.channel.send(buildPayload(0));
 
     // ── Collect button clicks ──────────────────────────────────────────────────
 
@@ -152,10 +150,10 @@ module.exports = {
     collector.on('collect', async i => {
       if (participants.has(i.user.id)) {
         participants.delete(i.user.id);
-        await i.reply({ content: `❌ You left the **${prize}** giveaway.`, ephemeral: true });
+        await i.reply({ content: `You left the **${prize}** giveaway.`, ephemeral: true });
       } else {
         participants.add(i.user.id);
-        await i.reply({ content: `🌐 You entered the **${prize}** giveaway! Good luck!`, ephemeral: true });
+        await i.reply({ content: `You entered the **${prize}** giveaway! Good luck!`, ephemeral: true });
       }
 
       await message.edit(buildPayload(participants.size)).catch(() => null);
@@ -168,7 +166,7 @@ module.exports = {
 
       if (!entries.length) {
         await message.edit(buildEndedPayload([])).catch(() => null);
-        await interaction.followUp('😔 No one entered — no winners this time!');
+        await interaction.channel.send('No one entered — no winners this time!');
         return;
       }
 
@@ -182,7 +180,7 @@ module.exports = {
       await message.edit(buildEndedPayload(validWinners)).catch(() => null);
 
       const mentions = validWinners.map(u => `${u}`).join(', ');
-      await interaction.followUp(`🎉 Congratulations ${mentions}! You won **${prize}**!`);
+      await interaction.channel.send(`Congratulations ${mentions}! You won **${prize}**!`);
     });
   },
 };
