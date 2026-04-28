@@ -26,12 +26,16 @@ module.exports = {
         )
     )
     .addStringOption(opt =>
+      opt.setName('product').setDescription('What product was made for you?').setRequired(true)
+    )
+    .addStringOption(opt =>
       opt.setName('feedback').setDescription('Your review').setRequired(true)
     ),
 
   async execute(interaction) {
     const designer = interaction.options.getUser('designer');
     const rating   = interaction.options.getInteger('rating');
+    const product  = interaction.options.getString('product');
     const feedback = interaction.options.getString('feedback');
     const stars    = '⭐'.repeat(rating) + '✩'.repeat(5 - rating);
 
@@ -44,20 +48,14 @@ module.exports = {
             {
               type: 10,
               content: [
-                `# New Review`,
+                `# New Review Submitted`,
+                `-# Reviewed by ${interaction.user}!`,
                 ``,
-                `**Designer:** ${designer}`,
-                `**Client:** ${interaction.user}`,
-                `**Rating:** ${stars}`,
-                `**Review:** ${feedback}`,
+                `- **Designer:** ${designer}`,
+                `- **Product:** ${product}`,
+                `- **Rating:** ${stars}`,
+                `- **Feedback:** ${feedback}`,
               ].join('\n'),
-            },
-            {
-              type: 14,
-            },
-            {
-              type: 10,
-              content: `-# Reviewed by ${interaction.user.tag}`,
             },
           ],
         },
@@ -66,7 +64,6 @@ module.exports = {
 
     await interaction.reply(payload);
 
-    // Post to reviews channel if not already there
     if (interaction.channelId !== REVIEWS_CHANNEL_ID) {
       const reviewsChannel = interaction.guild.channels.cache.get(REVIEWS_CHANNEL_ID);
       if (reviewsChannel) await reviewsChannel.send(payload).catch(() => null);
